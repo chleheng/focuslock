@@ -4,9 +4,46 @@ function setMsg(id, text, ok) {
   el.className = 'msg ' + (ok ? 'ok' : 'fail');
 }
 
+function fmtTimeLeft(exp) {
+  const ms = exp - Date.now();
+  if (ms <= 0) return 'expired';
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  return h > 0 ? `${h}h ${m}m left` : `${m}m left`;
+}
+
+async function loadUnlocks() {
+  const { allowed } = await chrome.runtime.sendMessage({ type: 'get_allowed' });
+  const section = document.getElementById('unlockSection');
+  const list = document.getElementById('unlockList');
+  list.innerHTML = '';
+
+  const active = Object.entries(allowed || {}).filter(([, exp]) => exp > Date.now());
+  section.style.display = active.length ? 'block' : 'none';
+
+  for (const [site, exp] of active) {
+    const row = document.createElement('div');
+    row.className = 'unlock-row';
+    row.innerHTML = `
+      <span class="unlock-site">${site}</span>
+      <span class="unlock-time">${fmtTimeLeft(exp)}</span>
+      <button class="relock-btn" data-site="${site}">Re-lock</button>
+    `;
+    list.appendChild(row);
+  }
+
+  list.querySelectorAll('.relock-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await chrome.runtime.sendMessage({ type: 'relock', site: btn.dataset.site });
+      loadUnlocks();
+    });
+  });
+}
+
 async function load() {
   const { sites } = await chrome.runtime.sendMessage({ type: 'get_sites' });
   document.getElementById('sites').value = (sites || []).join('\n');
+  await loadUnlocks();
 }
 
 document.getElementById('saveSites').addEventListener('click', async () => {

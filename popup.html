@@ -52,10 +52,40 @@
     .fail { color: #e94560; }
     hr { border: none; border-top: 1px solid #2a2a4a; margin: 4px 0 18px; }
     .hint { font-size: 0.75rem; color: #555; margin-top: 4px; }
+    #unlockSection { display: none; margin-bottom: 18px; }
+    .unlock-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 6px;
+      padding: 7px 10px;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+    .unlock-site { font-size: 0.88rem; flex: 1; }
+    .unlock-time { font-size: 0.75rem; color: #555; white-space: nowrap; }
+    .relock-btn {
+      margin-top: 0;
+      padding: 4px 10px;
+      background: #2a2a4a;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 5px;
+      color: #e0e0e0;
+      white-space: nowrap;
+    }
+    .relock-btn:hover { background: #3a3a6a; }
   </style>
 </head>
 <body>
   <h2>🔒 FocusLock</h2>
+
+  <section id="unlockSection">
+    <label>Active unlocks</label>
+    <div id="unlockList"></div>
+  </section>
 
   <section>
     <label>Blocked sites (one per line)</label>

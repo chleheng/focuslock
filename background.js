@@ -75,6 +75,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       case 'get_sites':
         sendResponse({ sites });
         break;
+      case 'get_allowed': {
+        const now2 = Date.now();
+        const active = Object.fromEntries(
+          Object.entries(allowed).filter(([, exp]) => exp > now2)
+        );
+        sendResponse({ allowed: active });
+        break;
+      }
+      case 'relock':
+        delete allowed[msg.site];
+        await chrome.storage.local.set({ allowed });
+        await updateRules();
+        sendResponse({ ok: true });
+        break;
       case 'set_sites':
         await chrome.storage.local.set({ sites: msg.sites });
         await updateRules();
