@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Blocked — FocusLock</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 14px;
+      padding: 44px 40px;
+      max-width: 420px;
+      width: 92%;
+      text-align: center;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+    }
+    .icon { font-size: 2.8rem; margin-bottom: 12px; }
+    h1 { font-size: 1.4rem; color: #fff; margin-bottom: 6px; }
+    .site-badge {
+      display: inline-block;
+      background: #e94560;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 22px;
+    }
+    p { font-size: 0.9rem; color: #888; margin-bottom: 20px; line-height: 1.5; }
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      background: #0f0f1a;
+      border: 2px solid #2a2a4a;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 12px;
+    }
+    input[type="password"]:focus { border-color: #e94560; }
+    button {
+      width: 100%;
+      padding: 11px;
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #c9304e; }
+    .error {
+      color: #e94560;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🔒</div>
+    <h1>Site Blocked</h1>
+    <div class="site-badge" id="siteName">this site</div>
+    <p>Enter your FocusLock password to access this site for 4 hours.</p>
+    <input type="password" id="pw" placeholder="Password" autocomplete="current-password" autofocus>
+    <button id="btn">Unlock</button>
+    <div class="error" id="err"></div>
+  </div>
+  <script src="blocked.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      width: 300px;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      padding: 18px;
+    }
+    h2 {
+      font-size: 1rem;
+      color: #e94560;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    section { margin-bottom: 18px; }
+    label { display: block; font-size: 0.78rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+    textarea, input {
+      width: 100%;
+      padding: 8px 10px;
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 6px;
+      color: #e0e0e0;
+      font-size: 0.88rem;
+      outline: none;
+      font-family: inherit;
+    }
+    textarea { resize: vertical; min-height: 72px; }
+    textarea:focus, input:focus { border-color: #e94560; }
+    input { margin-bottom: 6px; }
+    button {
+      margin-top: 8px;
+      padding: 7px 14px;
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #c9304e; }
+    .msg { font-size: 0.78rem; margin-top: 6px; min-height: 16px; }
+    .ok { color: #4caf50; }
+    .fail { color: #e94560; }
+    hr { border: none; border-top: 1px solid #2a2a4a; margin: 4px 0 18px; }
+    .hint { font-size: 0.75rem; color: #555; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h2>🔒 FocusLock</h2>
+
+  <section>
+    <label>Blocked sites (one per line)</label>
+    <textarea id="sites" placeholder="reddit.com&#10;x.com&#10;instagram.com"></textarea>
+    <div class="hint">Subdomains are blocked automatically. Temporary unlocks last 4 hours.</div>
+    <button id="saveSites">Save</button>
+    <div class="msg" id="sitesMsg"></div>
+  </section>
+
+  <hr>
+
+  <section>
+    <label>Change password</label>
+    <input type="password" id="oldPw" placeholder="Current password">
+    <input type="password" id="newPw" placeholder="New password">
+    <button id="savePw">Change Password</button>
+    <div class="msg" id="pwMsg"></div>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>
