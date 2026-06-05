@@ -88,6 +88,34 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 // Re-apply rules when service worker restarts to handle allowed expiry
 chrome.runtime.onStartup.addListener(updateRules);
 
+// Backup for service-worker-served navigations that bypass declarativeNetRequest
+// (e.g. x.com / Twitter PWA serves pages from its own SW cache)
+chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
+  if (details.frameId !== 0) return;
+  const { url, tabId } = details;
+  if (!url.startsWith('http://') && !url.startsWith('https://')) return;
+
+  const data = await chrome.storage.local.get(['sites', 'seriousSites', 'allowed']);
+  const sites = data.sites || [];
+  const seriousSites = data.seriousSites || [];
+  const allowed = data.allowed || {};
+  const now = Date.now();
+  const hostname = new URL(url).hostname.replace(/^www\./, '');
+
+  const regularMatch = sites.find(
+    s => (hostname === s || hostname.endsWith('.' + s)) && (!allowed[s] || allowed[s] < now)
+  );
+  const seriousMatch = seriousSites.find(
+    s => hostname === s && (!allowed[s] || allowed[s] < now)
+  );
+
+  if (regularMatch || seriousMatch) {
+    chrome.tabs.update(tabId, {
+      url: BLOCKED_PAGE + (seriousMatch ? '?s=1' : '') + '#' + url
+    });
+  }
+});
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   (async () => {
     const data = await chrome.storage.local.get(['sites', 'seriousSites', 'pwHash', 'allowed']);

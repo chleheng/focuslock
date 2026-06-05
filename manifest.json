@@ -3,7 +3,7 @@
   "name": "FocusLock",
   "version": "1.0",
   "description": "Password-protected site blocker — free forever",
-  "permissions": ["declarativeNetRequest", "storage"],
+  "permissions": ["declarativeNetRequest", "storage", "webNavigation", "tabs"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
