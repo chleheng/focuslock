@@ -52,6 +52,9 @@
     .fail { color: #e94560; }
     hr { border: none; border-top: 1px solid #2a2a4a; margin: 4px 0 18px; }
     .hint { font-size: 0.75rem; color: #555; margin-top: 4px; }
+    .serious-label { color: #ff6b00 !important; }
+    textarea.serious-ta:focus { border-color: #ff6b00; }
+    .serious-hint { color: #7a3a00; }
     #unlockSection { display: none; margin-bottom: 18px; }
     .unlock-row {
       display: flex;
@@ -88,11 +91,19 @@
   </section>
 
   <section>
-    <label>Blocked sites (one per line)</label>
-    <textarea id="sites" placeholder="reddit.com&#10;x.com&#10;instagram.com"></textarea>
-    <div class="hint">Subdomains are blocked automatically. Temporary unlocks last 4 hours.</div>
-    <button id="saveSites">Save</button>
+    <label class="serious-label">⚠️ Serious blocks (one per line)</label>
+    <textarea id="seriousSites" class="serious-ta" placeholder="reddit.com"></textarea>
+    <div class="hint serious-hint">Only blocks www.[site] — subdomains like old.reddit.com still work. Shows a stronger warning page.</div>
+    <button id="saveSites" style="background:#ff6b00">Save both lists</button>
     <div class="msg" id="sitesMsg"></div>
+  </section>
+
+  <hr>
+
+  <section>
+    <label>Regular blocks (one per line)</label>
+    <textarea id="sites" placeholder="x.com&#10;instagram.com"></textarea>
+    <div class="hint">All subdomains blocked. Temporary unlocks last 4 hours.</div>
   </section>
 
   <hr>

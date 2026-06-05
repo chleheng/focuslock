@@ -41,15 +41,18 @@ async function loadUnlocks() {
 }
 
 async function load() {
-  const { sites } = await chrome.runtime.sendMessage({ type: 'get_sites' });
+  const { sites, seriousSites } = await chrome.runtime.sendMessage({ type: 'get_sites' });
   document.getElementById('sites').value = (sites || []).join('\n');
+  document.getElementById('seriousSites').value = (seriousSites || []).join('\n');
   await loadUnlocks();
 }
 
 document.getElementById('saveSites').addEventListener('click', async () => {
-  const raw = document.getElementById('sites').value;
-  const sites = raw.split('\n').map(s => s.trim().toLowerCase()).filter(Boolean);
-  const res = await chrome.runtime.sendMessage({ type: 'set_sites', sites });
+  const parse = id => document.getElementById(id).value
+    .split('\n').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const sites = parse('sites');
+  const seriousSites = parse('seriousSites');
+  const res = await chrome.runtime.sendMessage({ type: 'set_sites', sites, seriousSites });
   setMsg('sitesMsg', res.ok ? 'Saved!' : 'Error saving.', res.ok);
 });
 

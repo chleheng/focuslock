@@ -1,3 +1,4 @@
+const isSerious = new URLSearchParams(window.location.search).get('s') === '1';
 let originalUrl = window.location.hash.slice(1);
 let site = 'this site';
 
@@ -8,6 +9,17 @@ try {
 }
 
 document.getElementById('siteName').textContent = site;
+
+if (isSerious) {
+  document.body.classList.add('serious');
+  document.getElementById('icon').textContent = '⚠️';
+  document.getElementById('heading').textContent = 'Are you sure?';
+}
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  if (history.length > 1) history.back();
+  else window.close();
+});
 
 const pwInput = document.getElementById('pw');
 const btn = document.getElementById('btn');

@@ -5,18 +5,40 @@
   <title>Blocked — FocusLock</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #0f0f1a;
+      --card-bg:      #1a1a2e;
+      --card-border:  #2a2a4a;
+      --accent:       #e94560;
+      --accent-hover: #c9304e;
+      --input-bg:     #0f0f1a;
+      --input-border: #2a2a4a;
+    }
+
+    body.serious {
+      --bg:           #180a00;
+      --card-bg:      #241200;
+      --card-border:  #5a2e00;
+      --accent:       #ff6b00;
+      --accent-hover: #cc5500;
+      --input-bg:     #180a00;
+      --input-border: #5a2e00;
+    }
+
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      background: #0f0f1a;
+      background: var(--bg);
       color: #e0e0e0;
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      transition: background 0.2s;
     }
     .card {
-      background: #1a1a2e;
-      border: 1px solid #2a2a4a;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 14px;
       padding: 44px 40px;
       max-width: 420px;
@@ -28,20 +50,32 @@
     h1 { font-size: 1.4rem; color: #fff; margin-bottom: 6px; }
     .site-badge {
       display: inline-block;
-      background: #e94560;
+      background: var(--accent);
       color: #fff;
       font-size: 0.85rem;
       font-weight: 600;
       padding: 3px 12px;
       border-radius: 20px;
-      margin-bottom: 22px;
+      margin-bottom: 16px;
     }
+    .serious-warning {
+      display: none;
+      background: rgba(255, 107, 0, 0.1);
+      border: 1px solid rgba(255, 107, 0, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      color: #ffaa66;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    body.serious .serious-warning { display: block; }
     p { font-size: 0.9rem; color: #888; margin-bottom: 20px; line-height: 1.5; }
     input[type="password"] {
       width: 100%;
       padding: 11px 14px;
-      background: #0f0f1a;
-      border: 2px solid #2a2a4a;
+      background: var(--input-bg);
+      border: 2px solid var(--input-border);
       border-radius: 8px;
       color: #e0e0e0;
       font-size: 1rem;
@@ -49,11 +83,11 @@
       transition: border-color 0.2s;
       margin-bottom: 12px;
     }
-    input[type="password"]:focus { border-color: #e94560; }
+    input[type="password"]:focus { border-color: var(--accent); }
     button {
       width: 100%;
       padding: 11px;
-      background: #e94560;
+      background: var(--accent);
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -62,9 +96,20 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    button:hover { background: #c9304e; }
+    button:hover { background: var(--accent-hover); }
+    .back-btn {
+      display: none;
+      margin-bottom: 10px;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: #888;
+      font-size: 0.88rem;
+      font-weight: 400;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.05); color: #ccc; }
+    body.serious .back-btn { display: block; }
     .error {
-      color: #e94560;
+      color: var(--accent);
       font-size: 0.85rem;
       margin-top: 10px;
       min-height: 20px;
@@ -73,10 +118,14 @@
 </head>
 <body>
   <div class="card">
-    <div class="icon">🔒</div>
-    <h1>Site Blocked</h1>
+    <div class="icon" id="icon">🔒</div>
+    <h1 id="heading">Site Blocked</h1>
     <div class="site-badge" id="siteName">this site</div>
-    <p>Enter your FocusLock password to access this site for 4 hours.</p>
+    <div class="serious-warning">
+      ⚠️ You marked this as a <strong>serious block</strong>. Take a breath — do you actually need to go here right now?
+    </div>
+    <p id="msg">Enter your FocusLock password to access this site for 4 hours.</p>
+    <button class="back-btn" id="backBtn">← Go back instead</button>
     <input type="password" id="pw" placeholder="Password" autocomplete="current-password" autofocus>
     <button id="btn">Unlock</button>
     <div class="error" id="err"></div>

@@ -6,8 +6,9 @@ async function sha256(str) {
 }
 
 async function updateRules() {
-  const data = await chrome.storage.local.get(['sites', 'allowed']);
+  const data = await chrome.storage.local.get(['sites', 'seriousSites', 'allowed']);
   const sites = data.sites || [];
+  const seriousSites = data.seriousSites || [];
   const allowed = data.allowed || {};
   const now = Date.now();
 
@@ -21,44 +22,77 @@ async function updateRules() {
   const existing = await chrome.declarativeNetRequest.getDynamicRules();
   const removeRuleIds = existing.map(r => r.id);
 
-  const toBlock = sites.filter(s => !allowed[s] || allowed[s] < now);
+  // Regular blocks — all subdomains caught
+  const regularRules = sites
+    .filter(s => !allowed[s] || allowed[s] < now)
+    .map((site, i) => ({
+      id: i + 1,
+      priority: 1,
+      action: {
+        type: 'redirect',
+        redirect: { regexSubstitution: BLOCKED_PAGE + '#\\0' }
+      },
+      condition: {
+        regexFilter: `^https?://([^/]+\\.)?${site.replace(/\./g, '\\.')}(/.*)?$`,
+        resourceTypes: ['main_frame'],
+        isUrlFilterCaseSensitive: false
+      }
+    }));
 
-  const addRules = toBlock.map((site, i) => ({
-    id: i + 1,
-    priority: 1,
-    action: {
-      type: 'redirect',
-      redirect: { regexSubstitution: BLOCKED_PAGE + '#\\0' }
-    },
-    condition: {
-      regexFilter: `^https?://([^/]+\\.)?${site.replace(/\./g, '\\.')}(/.*)?$`,
-      resourceTypes: ['main_frame'],
-      isUrlFilterCaseSensitive: false
-    }
-  }));
+  // Serious blocks — only www + naked domain (subdomains like old.reddit.com pass through)
+  const seriousRules = seriousSites
+    .filter(s => !allowed[s] || allowed[s] < now)
+    .map((site, i) => ({
+      id: i + 1001,
+      priority: 2, // higher priority than regular rules
+      action: {
+        type: 'redirect',
+        redirect: { regexSubstitution: BLOCKED_PAGE + '?s=1#\\0' }
+      },
+      condition: {
+        regexFilter: `^https?://(www\\.)?${site.replace(/\./g, '\\.')}(/.*)?$`,
+        resourceTypes: ['main_frame'],
+        isUrlFilterCaseSensitive: false
+      }
+    }));
 
-  await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds, addRules });
+  await chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds,
+    addRules: [...regularRules, ...seriousRules]
+  });
 }
 
-chrome.runtime.onInstalled.addListener(async () => {
-  const data = await chrome.storage.local.get(['sites', 'pwHash']);
+chrome.runtime.onInstalled.addListener(async ({ reason }) => {
+  const data = await chrome.storage.local.get(['sites', 'pwHash', 'seriousSites']);
+
   if (!data.sites) {
+    // Fresh install
     await chrome.storage.local.set({
-      sites: ['reddit.com', 'x.com', 'instagram.com'],
+      sites: ['x.com', 'instagram.com'],
+      seriousSites: ['reddit.com'],
       pwHash: await sha256('focuslock'),
       allowed: {}
     });
+  } else if (!data.seriousSites) {
+    // Existing install — migrate reddit.com to serious blocks
+    const newSites = (data.sites || []).filter(s => s !== 'reddit.com');
+    await chrome.storage.local.set({
+      seriousSites: ['reddit.com'],
+      sites: newSites
+    });
   }
+
   await updateRules();
 });
 
-// Re-apply rules when service worker restarts (rules persist, but handle allowed expiry)
+// Re-apply rules when service worker restarts to handle allowed expiry
 chrome.runtime.onStartup.addListener(updateRules);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   (async () => {
-    const data = await chrome.storage.local.get(['sites', 'pwHash', 'allowed']);
+    const data = await chrome.storage.local.get(['sites', 'seriousSites', 'pwHash', 'allowed']);
     const sites = data.sites || [];
+    const seriousSites = data.seriousSites || [];
     const pwHash = data.pwHash || '';
     const allowed = data.allowed || {};
 
@@ -73,7 +107,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         break;
       }
       case 'get_sites':
-        sendResponse({ sites });
+        sendResponse({ sites, seriousSites });
         break;
       case 'get_allowed': {
         const now2 = Date.now();
@@ -90,7 +124,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         sendResponse({ ok: true });
         break;
       case 'set_sites':
-        await chrome.storage.local.set({ sites: msg.sites });
+        await chrome.storage.local.set({ sites: msg.sites, seriousSites: msg.seriousSites });
         await updateRules();
         sendResponse({ ok: true });
         break;
@@ -103,5 +137,5 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       }
     }
   })();
-  return true; // keep message channel open for async response
+  return true;
 });
