@@ -1,0 +1,12 @@
+{
+  "summary": {
+    "en-US": "Password-protected site blocking with local-only settings and history cleanup."
+  },
+  "categories": {
+    "firefox": ["productivity"]
+  },
+  "version": {
+    "license": "MIT"
+  },
+  "requires_payment": false
+}
