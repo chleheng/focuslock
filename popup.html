@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      width: 300px;
+      width: min(360px, 100vw);
+      min-width: 300px;
       background: #0f0f1a;
       color: #e0e0e0;
       padding: 18px;
@@ -47,6 +49,23 @@
       cursor: pointer;
     }
     button:hover { background: #c9304e; }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    button:disabled:hover { background: #e94560; }
+    .button-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .button-row button {
+      flex: 1;
+      min-width: 0;
+    }
+    .secondary-btn { background: #2a2a4a; }
+    .secondary-btn:hover { background: #3a3a6a; }
+    .secondary-btn:disabled:hover { background: #2a2a4a; }
     .msg { font-size: 0.78rem; margin-top: 6px; min-height: 16px; }
     .ok { color: #4caf50; }
     .fail { color: #e94560; }
@@ -89,6 +108,19 @@
     <label>Active unlocks</label>
     <div id="unlockList"></div>
   </section>
+
+  <section>
+    <label>Hide from history/autocomplete</label>
+    <textarea id="hiddenHistorySites" placeholder="okcupid.com&#10;bumble.com"></textarea>
+    <div class="hint">Deletes matching browser history entries on visit and when cleaned.</div>
+    <div class="button-row">
+      <button id="saveHiddenHistory">Save</button>
+      <button id="cleanHistory" class="secondary-btn">Clean now</button>
+    </div>
+    <div class="msg" id="historyMsg"></div>
+  </section>
+
+  <hr>
 
   <section>
     <label class="serious-label">⚠️ Serious blocks (one per line)</label>
